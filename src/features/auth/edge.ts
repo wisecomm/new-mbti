@@ -1,6 +1,6 @@
 // Pure and edge-safe: src/proxy.ts imports this, so it must never pull in server-only code.
 
-const PUBLIC_PATHS = ["/login", "/auth/callback"] as const;
+const PUBLIC_PATHS = ["/login", "/signup", "/auth/callback"] as const;
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

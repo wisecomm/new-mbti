@@ -25,7 +25,7 @@ describe("loginPath", () => {
 });
 
 describe("isPublicPath", () => {
-  it.each(["/login", "/auth/callback"])("treats %s as public", (p) => {
+  it.each(["/login", "/signup", "/auth/callback"])("treats %s as public", (p) => {
     expect(isPublicPath(p)).toBe(true);
   });
 
