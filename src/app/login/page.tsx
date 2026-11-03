@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { SignInButtons } from "@/features/auth";
+import { EmailAuthForm, SignInButtons } from "@/features/auth";
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
@@ -17,10 +17,17 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 
 async function SignIn({ searchParams }: Pick<PageProps<"/login">, "searchParams">) {
   const { next, error } = await searchParams;
+  const nextPath = typeof next === "string" ? next : null;
   return (
     <>
       {error && <p className="text-sm text-red-600">로그인에 실패했어요. 다시 시도해 주세요.</p>}
-      <SignInButtons next={typeof next === "string" ? next : null} />
+      <SignInButtons next={nextPath} />
+      <div className="flex w-full items-center gap-3 text-sm text-zinc-400">
+        <span className="h-px flex-1 bg-zinc-200" />
+        또는
+        <span className="h-px flex-1 bg-zinc-200" />
+      </div>
+      <EmailAuthForm mode="signin" next={nextPath} />
     </>
   );
 }
