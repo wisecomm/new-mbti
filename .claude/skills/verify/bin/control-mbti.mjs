@@ -218,9 +218,14 @@ async function down() {
     sh("npx", ["supabase", "stop"], { inherit: true });
     console.log("✓ stopped local Supabase (this run started it)");
   } else if (state.supabase && state.users) {
-    // Supabase was already running for someone else: remove only our seeded users (cascades their results).
-    for (const id of Object.values(state.users)) await admin(state.supabase, "DELETE", `/auth/v1/admin/users/${id}`);
-    console.log("✓ removed seeded verify users; left the shared Supabase running");
+    // Supabase was already running for someone else: remove our seeded users and any journey sign-ups (cascades their results).
+    const { users } = await admin(state.supabase, "GET", `/auth/v1/admin/users?per_page=1000`);
+    const ours = new Set(Object.values(state.users));
+    for (const u of users) {
+      if (ours.has(u.id) || /^verify-.*@example\.test$/.test(u.email ?? ""))
+        await admin(state.supabase, "DELETE", `/auth/v1/admin/users/${u.id}`);
+    }
+    console.log("✓ removed seeded and journey-created verify users; left the shared Supabase running");
   }
   rmSync(SCRATCH, { recursive: true, force: true });
   console.log(`✓ removed .verify/ (evidence kept in ${EVIDENCE_ROOT})`);

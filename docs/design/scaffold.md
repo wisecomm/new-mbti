@@ -180,6 +180,7 @@ grant select, insert on public.mbti_results to authenticated;
 - **`(app)` layout의 `requireUser()`를 Suspense 안으로 옮김.** create-next-app이 `cacheComponents: true`를 켜 두었고, 이 모드에서는 `cookies()`나 `crypto.randomUUID()`를 `<Suspense>` 밖에서 쓰면 빌드 에러가 난다(Next 16 "Authentication with Cache Components" 가이드). 그래서 세션을 읽는 부분은 모두 각 페이지의 Suspense 안 async 컴포넌트로 옮겼다. layout은 헤더의 사용자 메뉴만 Suspense로 감싼다. 공유 계약은 그대로 유지된다. 진짜 검사는 원래부터 데이터 함수 안의 `requireUser()`였고, `/test`는 폼을 그리기 전에 직접 `requireUser()`를 호출한다. (구현 중 빌드 에러로 확인)
 - **`saveResult`는 `user_id`를 명시적으로 넣음.** 컬럼 default `auth.uid()`에 기대지 않고 `requireUser()`의 id를 넣는다. 충돌 대상인 `(user_id, submission_id)`가 코드에서 바로 보이게 하려는 것이고, 계약은 변하지 않는다.
 - **권한:** `revoke all ... from anon, authenticated` 다음 `grant select, insert ... to authenticated`. Supabase가 기본으로 주는 update/delete 권한까지 걷어낸다.
+- **이메일 로그인/가입 추가.** `/login`에 이메일·비밀번호 폼(`EmailAuthForm`, mode `signin`)을, 새 `/signup`(공개 경로)에 가입 폼(mode `signup`)을 붙였다. OAuth 버튼은 그대로다. 서버 액션 `signInWithEmail`/`signUpWithEmail`이 `parseCredentials`(경계 파싱)와 `authErrorMessage`(Supabase 에러 코드 → 한국어 표)를 쓰고, 상태는 `EmailAuthState`(`idle | error | check-email`)다. 가입 후 세션이 있으면 `next`로 보내고, 없으면(이메일 확인이 켜진 호스팅 Supabase) `check-email` 안내를 보여 준다. 확인 링크는 기존 `/auth/callback`이 처리한다. 로컬 Supabase는 확인이 꺼져 있어 `check-email` 분기는 로컬에서 검증하지 못했다. 콜백 URL 생성은 OAuth와 가입이 하나의 헬퍼를 공유한다.
 
 ## 확인이 필요한 것
 
