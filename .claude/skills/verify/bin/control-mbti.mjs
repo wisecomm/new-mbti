@@ -214,18 +214,19 @@ async function down() {
   } catch {
     console.log(`· next dev process group ${state.pid} already gone`);
   }
+  if (state.supabase) {
+    // `supabase stop` keeps the data volume, so delete every verify user (seeded and journey sign-ups,
+    // cascading their results) either way; `up` recreates the seeded ones.
+    const { users } = await admin(state.supabase, "GET", `/auth/v1/admin/users?per_page=1000`);
+    const ours = users.filter((u) => /^verify-.*@example\.test$/.test(u.email ?? ""));
+    for (const u of ours) await admin(state.supabase, "DELETE", `/auth/v1/admin/users/${u.id}`);
+    console.log(`✓ removed ${ours.length} verify users`);
+  }
   if (state.startedSupabase) {
     sh("npx", ["supabase", "stop"], { inherit: true });
     console.log("✓ stopped local Supabase (this run started it)");
-  } else if (state.supabase && state.users) {
-    // Supabase was already running for someone else: remove our seeded users and any journey sign-ups (cascades their results).
-    const { users } = await admin(state.supabase, "GET", `/auth/v1/admin/users?per_page=1000`);
-    const ours = new Set(Object.values(state.users));
-    for (const u of users) {
-      if (ours.has(u.id) || /^verify-.*@example\.test$/.test(u.email ?? ""))
-        await admin(state.supabase, "DELETE", `/auth/v1/admin/users/${u.id}`);
-    }
-    console.log("✓ removed seeded and journey-created verify users; left the shared Supabase running");
+  } else {
+    console.log("· left the shared Supabase running");
   }
   rmSync(SCRATCH, { recursive: true, force: true });
   console.log(`✓ removed .verify/ (evidence kept in ${EVIDENCE_ROOT})`);

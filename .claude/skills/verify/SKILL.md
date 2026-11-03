@@ -103,8 +103,8 @@ node .claude/skills/verify/bin/control-mbti.mjs down
 ```
 
 `down` kills only the `next dev` process group it started, using the pid in the run file. It never kills by process name.
-- If this run started Supabase, it runs `supabase stop`. Data volumes persist, so the next `up` reuses them and resets the seeded passwords.
-- If Supabase was already running, for example your own local dev, it leaves Supabase running and deletes only the two seeded users. That cascades to their results.
+- It first deletes every `verify-*@example.test` auth user, which covers the two seeded users and any sign-ups a journey created, and cascades to their results. `supabase stop` keeps the data volume, so without this the journey users would pile up. `up` recreates the seeded users.
+- If this run started Supabase, it then runs `supabase stop`. If Supabase was already running, for example your own local dev, it leaves Supabase running.
 
 It then removes `.verify/` and keeps `.verify-evidence/`. Run `down` after every failed attempt too.
 
