@@ -45,4 +45,4 @@ Preconditions:
 - `next=/` is dropped from the login URL on purpose. `/login?next=%2F` never appears.
 - Sign-out runs as the shared main user. It invalidates only the cookie that journey sent, and later journeys sign in fresh.
 - Local Supabase has email confirmations off, so sign-up returns a session at once. The check-email branch (no session, confirmation link to `/auth/callback`) is not exercised locally. Report it unverified.
-- The email journey creates real users. `cm down` deletes every `verify-*@example.test` user when it leaves a shared Supabase running; when `up` started Supabase, `supabase stop` discards them.
+- The email journey creates real users. `supabase stop` keeps the data volume, so `cm down` deletes every `verify-*@example.test` user before stopping or leaving Supabase.
