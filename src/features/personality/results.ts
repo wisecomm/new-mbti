@@ -75,6 +75,20 @@ export async function getLatestResult(): Promise<MbtiResult | null> {
   return data ? parseRow(data) : null;
 }
 
+/** The caller's results, newest first. */
+export async function listResults(): Promise<MbtiResult[]> {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("mbti_results")
+    .select(COLUMNS)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .returns<Row[]>();
+  if (error) throw new Error(`listResults failed: ${error.message}`);
+  return data.map(parseRow);
+}
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MBTI_TYPE = /^[EI][SN][TF][JP]$/;
 const METHODS: readonly Method[] = ["questionnaire"];

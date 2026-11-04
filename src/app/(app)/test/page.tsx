@@ -4,12 +4,12 @@ import { QuestionnaireForm } from "@/features/questionnaire";
 
 export default function TestPage() {
   return (
-    <div className="flex w-full flex-col gap-8">
+    <>
       <h1 className="text-2xl font-bold">MBTI 테스트</h1>
       <Suspense fallback={<p className="text-zinc-400">불러오는 중...</p>}>
         <Questionnaire />
       </Suspense>
-    </div>
+    </>
   );
 }
 
