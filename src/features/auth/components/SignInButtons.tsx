@@ -10,7 +10,7 @@ export function SignInButtons({ next }: { next: string | null }) {
     <div className="flex w-full flex-col gap-3">
       {PROVIDERS.map((p) => (
         <form key={p.id} action={signIn.bind(null, p.id, next)}>
-          <button type="submit" className={`w-full rounded-lg px-4 py-3 font-medium ${p.className}`}>
+          <button type="submit" className={`w-full rounded-xl px-4 py-3 font-medium ${p.className}`}>
             {p.label}
           </button>
         </form>

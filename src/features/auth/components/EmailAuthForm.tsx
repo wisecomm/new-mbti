@@ -38,7 +38,7 @@ const MODES: Record<
   },
 };
 
-const INPUT = "w-full rounded-lg border border-zinc-300 px-4 py-3";
+const INPUT = "w-full rounded-xl border border-zinc-300 px-4 py-3";
 
 export function EmailAuthForm({ mode, next }: { mode: Mode; next: string | null }) {
   const m = MODES[mode];
@@ -86,14 +86,14 @@ export function EmailAuthForm({ mode, next }: { mode: Mode; next: string | null 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-lg bg-zinc-900 px-4 py-3 font-medium text-white disabled:opacity-60"
+          className="w-full rounded-xl bg-primary px-4 py-3 font-semibold text-white disabled:opacity-60"
         >
           {pending ? m.pending : m.submit}
         </button>
       </form>
       <p className="text-center text-sm text-zinc-500">
         {m.switchText}{" "}
-        <Link href={switchHref} className="font-medium text-zinc-900 underline">
+        <Link href={switchHref} className="font-medium text-primary underline">
           {m.switchLabel}
         </Link>
       </p>
