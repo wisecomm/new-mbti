@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Drive the real new-mbti web app (Next.js 16 + local Supabase) in a headless browser as a signed-in user and capture proof. Use to verify any change to login/OAuth, the MBTI questionnaire, the result page, or the home screen, or whenever you need to show that a user-facing behavior actually works.
+description: Drive the real new-mbti web app (Next.js 16 + local Supabase) in a headless browser as a signed-in user or a guest and capture proof. Use to verify any change to login/OAuth, the MBTI questionnaire, the result page, or the home screen, or whenever you need to show that a user-facing behavior actually works.
 ---
 
 # Verify new-mbti
@@ -60,7 +60,7 @@ node .claude/skills/verify/bin/control-mbti.mjs run .claude/skills/verify/journe
 ```
 
 The run flags are:
-- `--anon` runs with no session (for login and redirect behavior).
+- `--anon` runs with no session. The app gives such a visitor a guest (anonymous Supabase) session on the first app URL, so use it for guest and login behavior.
 - `--as other` runs as the second seeded user.
 
 A journey module's default export receives:
@@ -71,9 +71,9 @@ A journey module's default export receives:
 - `appUrl`, `email`, `evidence`.
 
 To check something no journey covers, write a new journey file in the same shape. Don't poke the app by hand. Use stable handles, as the existing journeys do:
-- **Roles and accessible names:** `getByRole("button", { name: "결과 보기" })`, `getByRole("group")` (one per question fieldset), `getByRole("heading", { level: 1 })` (the MBTI type on result screens), `getByRole("banner")` (the signed-in header).
+- **Roles and accessible names:** `getByRole("button", { name: "결과 보기" })`, `getByRole("group")` (one per question fieldset), `getByRole("heading", { level: 1 })` (the MBTI type on result screens), `getByRole("navigation", { name: "탭" })` (the bottom tab bar).
 - **Visible Korean labels:** `매우 그렇다`, `로그아웃`, `Google로 계속하기`, `Apple로 계속하기`, `테스트 시작하기`, `다시 테스트하기`.
-- **Route paths:** `/login`, `/auth/callback`, `/`, `/test`, `/results/<uuid>`.
+- **Route paths:** `/login`, `/signup`, `/auth/callback`, `/`, `/test`, `/results`, `/results/<uuid>`, `/me`.
 
 To see stored rows yourself, use the read-only second view:
 
@@ -92,7 +92,7 @@ Every `run` writes to `.verify-evidence/<timestamp>-<journey>/`. Git ignores thi
 Proof standards:
 - Drive the real user path: buttons, links, form submits. `db.insert`/`db.clear` are only for fixture setup that the feature under test doesn't own. Never use them to fake the behavior being verified.
 - Capture the action and the resulting state, not just the final screen. Example: the submit, then the result page, then the stored row.
-- Verify side effects in the database (`db.results()` or `cm results`) alongside what's visible. A result page without a matching row isn't proof.
+- Verify side effects in the database (`db.results()` or `cm results`) alongside what's visible. A result page without a matching row isn't proof. Guest users have no seeded email, so the db helpers can't see their rows. For a guest, assert through the `기록` list and say the database view was unavailable.
 - The only mock-like seam is the seeded email/password session, which stands in for the Google/Apple consent screens. Report OAuth as verified only up to "redirects to Supabase authorize with the right provider and callback". The provider round trip needs real credentials and stays unverified.
 - Report the feature ID and entry point with each artifact. A skipped entry point isn't verified through another one.
 
@@ -103,7 +103,7 @@ node .claude/skills/verify/bin/control-mbti.mjs down
 ```
 
 `down` kills only the `next dev` process group it started, using the pid in the run file. It never kills by process name.
-- It first deletes every `verify-*@example.test` auth user, which covers the two seeded users and any sign-ups a journey created, and cascades to their results. `supabase stop` keeps the data volume, so without this the journey users would pile up. `up` recreates the seeded users.
+- It first deletes every guest (`is_anonymous`) auth user created after the run's `startedAt`, so `--anon` journeys don't leave guests behind; older anonymous users are never touched. It also deletes every `verify-*@example.test` auth user, which covers the two seeded users and any sign-ups a journey created, and cascades to their results. `supabase stop` keeps the data volume, so without this the journey users would pile up. `up` recreates the seeded users.
 - If this run started Supabase, it then runs `supabase stop`. If Supabase was already running, for example your own local dev, it leaves Supabase running.
 
 It then removes `.verify/` and keeps `.verify-evidence/`. Run `down` after every failed attempt too.

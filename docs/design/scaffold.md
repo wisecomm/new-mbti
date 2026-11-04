@@ -181,6 +181,7 @@ grant select, insert on public.mbti_results to authenticated;
 - **`saveResult`는 `user_id`를 명시적으로 넣음.** 컬럼 default `auth.uid()`에 기대지 않고 `requireUser()`의 id를 넣는다. 충돌 대상인 `(user_id, submission_id)`가 코드에서 바로 보이게 하려는 것이고, 계약은 변하지 않는다.
 - **권한:** `revoke all ... from anon, authenticated` 다음 `grant select, insert ... to authenticated`. Supabase가 기본으로 주는 update/delete 권한까지 걷어낸다.
 - **이메일 로그인/가입 추가.** `/login`에 이메일·비밀번호 폼(`EmailAuthForm`, mode `signin`)을, 새 `/signup`(공개 경로)에 가입 폼(mode `signup`)을 붙였다. OAuth 버튼은 그대로다. 서버 액션 `signInWithEmail`/`signUpWithEmail`이 `parseCredentials`(경계 파싱)와 `authErrorMessage`(Supabase 에러 코드 → 한국어 표)를 쓰고, 상태는 `EmailAuthState`(`idle | error | check-email`)다. 가입 후 세션이 있으면 `next`로 보내고, 없으면(이메일 확인이 켜진 호스팅 Supabase) `check-email` 안내를 보여 준다. 확인 링크는 기존 `/auth/callback`이 처리한다. 로컬 Supabase는 확인이 꺼져 있어 `check-email` 분기는 로컬에서 검증하지 못했다. 콜백 URL 생성은 OAuth와 가입이 하나의 헬퍼를 공유한다.
+- **탭 셸과 익명 게스트 접근.** 화면을 모바일 앱 셸(하단 탭 `홈`/`테스트`/`기록`/`MY`, 탭 목록은 `TabBar`의 배열 하나)로 바꾸고 `(app)` layout의 상단 헤더(이메일·로그아웃)를 없앴다. 로그아웃은 `/me`로 옮겼다. 로그인 없이도 쓸 수 있도록 Supabase 익명 로그인을 켰다(`enable_anonymous_sign_ins = true`). `proxy.ts`는 더 이상 `/login`으로 리다이렉트하지 않고, 공개 경로가 아닌 곳에서 세션이 없으면 `signInAnonymously()`로 게스트 세션을 만든다. `requireUser()`는 `is_anonymous` 클레임을 `SessionUser.isAnonymous`로 돌려주고, 세션이 아예 없을 때만 `/login`으로 보낸다. 로그인·가입 시 게스트 세션은 새 세션으로 교체되며 게스트 결과를 계정으로 옮기는 변환(guest-to-account conversion)은 아직 구현하지 않았다. `/results` 목록은 `listResults()`가 맡는다.
 
 ## 확인이 필요한 것
 

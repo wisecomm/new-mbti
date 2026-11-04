@@ -1,6 +1,6 @@
 # MBTI questionnaire
 
-A signed-in user answers 20 statements on a five-step scale, from `전혀 아니다` to `매우 그렇다`, and chooses `결과 보기`. The app scores the answers, saves one result, and opens that result's page. A double submit still saves exactly one result.
+A user (a guest or a signed-in user) answers 20 statements on a five-step scale, from `전혀 아니다` to `매우 그렇다`, and chooses `결과 보기`. The app scores the answers, saves one result, and opens that result's page. A double submit still saves exactly one result.
 
 ## Sub-features
 
@@ -12,7 +12,7 @@ A signed-in user answers 20 statements on a five-step scale, from `전혀 아니
 ## How to get to it (user POV)
 
 - Choose `테스트 시작하기` or `다시 테스트하기` on the home screen.
-- Open `/test` directly while signed in.
+- Choose the `테스트` tab or open `/test` directly.
 
 ## Driving it with control-mbti
 

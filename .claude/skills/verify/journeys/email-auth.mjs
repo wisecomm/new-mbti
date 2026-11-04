@@ -16,14 +16,15 @@ export default async function journey({ page, step, shot, appUrl }) {
   await step("sign-up with a fresh email lands on /test signed in", async () => {
     await submit("/signup?next=%2Ftest", password, "회원가입");
     await expect(page).toHaveURL(`${appUrl}/test`);
-    await expect(page.getByRole("banner").getByText(email)).toBeVisible();
+    await page.goto("/me");
+    await expect(page.getByText(email)).toBeVisible();
     await shot("signed-up");
     return email;
   });
 
-  await step("로그아웃 returns to /login", async () => {
+  await step("로그아웃 returns to /", async () => {
     await page.getByRole("button", { name: "로그아웃" }).click();
-    await expect(page).toHaveURL(`${appUrl}/login`);
+    await expect(page).toHaveURL(`${appUrl}/`);
   });
 
   await step("wrong password shows the invalid-credentials message and keeps the email", async () => {
@@ -37,10 +38,11 @@ export default async function journey({ page, step, shot, appUrl }) {
     await page.getByLabel("비밀번호").fill(password);
     await page.getByRole("button", { name: "로그인", exact: true }).click();
     await expect(page).toHaveURL(`${appUrl}/`);
-    await expect(page.getByRole("banner").getByText(email)).toBeVisible();
+    await page.goto("/me");
+    await expect(page.getByText(email)).toBeVisible();
     await shot("signed-in");
     await page.getByRole("button", { name: "로그아웃" }).click();
-    await expect(page).toHaveURL(`${appUrl}/login`);
+    await expect(page).toHaveURL(`${appUrl}/`);
   });
 
   await step("signing up the same email again shows the already-registered message", async () => {

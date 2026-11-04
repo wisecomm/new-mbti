@@ -216,11 +216,16 @@ async function down() {
   }
   if (state.supabase) {
     // `supabase stop` keeps the data volume, so delete every verify user (seeded and journey sign-ups,
-    // cascading their results) either way; `up` recreates the seeded ones.
+    // cascading their results) either way; `up` recreates the seeded ones. Guest sessions the app
+    // created during this run go too; anonymous users from before startedAt are not ours.
+    const startedAt = new Date(state.startedAt);
     const { users } = await admin(state.supabase, "GET", `/auth/v1/admin/users?per_page=1000`);
-    const ours = users.filter((u) => /^verify-.*@example\.test$/.test(u.email ?? ""));
+    const ours = users.filter(
+      (u) =>
+        /^verify-.*@example\.test$/.test(u.email ?? "") || (u.is_anonymous === true && new Date(u.created_at) >= startedAt),
+    );
     for (const u of ours) await admin(state.supabase, "DELETE", `/auth/v1/admin/users/${u.id}`);
-    console.log(`✓ removed ${ours.length} verify users`);
+    console.log(`✓ removed ${ours.length} verify and guest users`);
   }
   if (state.startedSupabase) {
     sh("npx", ["supabase", "stop"], { inherit: true });

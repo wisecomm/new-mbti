@@ -1,6 +1,6 @@
 # Home
 
-The home screen at `/` shows the signed-in user's latest result with a `다시 테스트하기` link. A user with no results sees `아직 결과가 없어요` and a `테스트 시작하기` link to the questionnaire.
+The home screen at `/` greets the user (`Guest님` for a guest, otherwise the email's local part plus `님`), shows a sign-up card to guests, a feature grid and the latest result with a `다시 테스트하기` link. A user with no results sees `아직 결과가 없어요` and a `테스트 시작하기` link to the questionnaire.
 
 ## Sub-features
 
@@ -9,8 +9,8 @@ The home screen at `/` shows the signed-in user's latest result with a `다시 �
 
 ## How to get to it (user POV)
 
-- Sign in, which returns you to `/` unless `next` says otherwise.
-- Choose the `MBTI` logo in the header.
+- Open the app, or sign in, which returns you to `/` unless `next` says otherwise.
+- Choose the `홈` tab.
 
 ## Driving it with control-mbti
 
@@ -21,6 +21,7 @@ Preconditions:
 - **Empty, then latest.** Run `cm run .claude/skills/verify/journeys/home.mjs`.
   - Fixtures clear the main user's results. `/` then shows `아직 결과가 없어요`, and `테스트 시작하기` lands on `/test`.
   - Fixtures insert an older `INTP` and a newer `ENFJ` result. `/` then shows the `h1` `ENFJ` and `다시 테스트하기`.
+  - The `기록` tab then lists `ENFJ` before `INTP`.
 - **Proof.** Use the run's `home-empty` and `home-latest` pairs, plus the transcript.
 
 ## Gotchas

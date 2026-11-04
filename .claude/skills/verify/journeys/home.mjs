@@ -24,4 +24,14 @@ export default async function journey({ page, step, shot, db, appUrl }) {
     await expect(page.getByRole("link", { name: "다시 테스트하기" })).toBeVisible();
     await shot("home-latest");
   });
+
+  await step("기록 tab lists results newest first", async () => {
+    await page.getByRole("navigation", { name: "탭" }).getByRole("link", { name: "기록" }).click();
+    await expect(page).toHaveURL(`${appUrl}/results`);
+    const items = page.getByRole("listitem");
+    await expect(items).toHaveCount(2);
+    await expect(items.first()).toContainText("ENFJ");
+    await expect(items.last()).toContainText("INTP");
+    await shot("results-list");
+  });
 }

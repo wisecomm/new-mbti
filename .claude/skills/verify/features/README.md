@@ -32,7 +32,8 @@ Each feature file starts with an H1 and one paragraph of user-visible behavior, 
 
 ## Features
 
-- [Sign-in gate and OAuth start](./auth.md): redirect to login, Google and Apple buttons, email sign-in and sign-up, the callback error path, sign-out.
+- [Guest session, sign-in and OAuth start](./auth.md): guest access without login, Google and Apple buttons, email sign-in and sign-up, the callback error path, sign-out.
+- [Tab shell, 기록 and MY](./tabs.md): the bottom tab bar, the results list, the guest and signed-in MY page.
 - [MBTI questionnaire](./questionnaire.md): 20 questions, required answers, scoring, idempotent submit, the stored row.
 - [Result page](./result-view.md): type and axes for your own result, the 404 screen for other users' and malformed ids.
 - [Home](./home.md): empty state, latest result, retake link.
