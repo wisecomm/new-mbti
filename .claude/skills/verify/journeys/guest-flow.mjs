@@ -12,6 +12,8 @@ export default async function journey({ page, step, shot, appUrl }) {
   await step("guest answers the questionnaire and lands on a result", async () => {
     await page.getByRole("navigation", { name: "탭" }).getByRole("link", { name: "테스트" }).click();
     await expect(page).toHaveURL(`${appUrl}/test`);
+    // The questionnaire streams in behind Suspense; .all() does not wait for it.
+    await expect(page.getByRole("group")).toHaveCount(20);
     for (const group of await page.getByRole("group").all()) await group.getByText("매우 그렇다").click();
     await page.getByRole("button", { name: "결과 보기" }).click();
     await page.waitForURL(/\/results\/[0-9a-f-]{36}$/);
