@@ -1,17 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
-import { isPublicPath, loginPath } from "@/features/auth/edge";
+import { isPublicPath } from "@/features/auth/edge";
 
-/** Optimistic gate only. The real check is requireUser() next to the data. */
+/** Keeps the session fresh and gives every visitor a guest session; the real check is requireUser(). */
 export async function proxy(request: NextRequest) {
-  const { response, signedIn } = await updateSession(request);
-  const { pathname, search } = request.nextUrl;
-  if (signedIn || isPublicPath(pathname)) return response;
-
-  const redirect = NextResponse.redirect(new URL(loginPath(pathname + search), request.url));
-  // Keep any cookies updateSession refreshed or cleared.
-  response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
-  return redirect;
+  const { response } = await updateSession(request, { createGuest: !isPublicPath(request.nextUrl.pathname) });
+  return response;
 }
 
 export const config = {

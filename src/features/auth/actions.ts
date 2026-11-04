@@ -52,5 +52,5 @@ export async function signUpWithEmail(_prev: EmailAuthState, form: FormData): Pr
 export async function signOut(): Promise<never> {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  redirect("/");
 }

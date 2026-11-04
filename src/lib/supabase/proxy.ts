@@ -1,9 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/** `createGuest` starts an anonymous session for a visitor with none. */
 export async function updateSession(
   request: NextRequest,
-): Promise<{ response: NextResponse; signedIn: boolean }> {
+  { createGuest }: { createGuest: boolean },
+): Promise<{ response: NextResponse }> {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -32,6 +34,7 @@ export async function updateSession(
 
   // Refreshes the auth token; must run before any response is returned.
   const { data } = await supabase.auth.getClaims();
+  if (!data?.claims && createGuest) await supabase.auth.signInAnonymously();
 
-  return { response, signedIn: data?.claims != null };
+  return { response };
 }
